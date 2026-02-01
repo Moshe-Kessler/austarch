@@ -1,0 +1,10 @@
+# AustArch Database Dependencies
+psycopg2-binary>=2.9.0
+
+# Visualization Dependencies
+jupyter>=1.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+folium>=0.14.0
+pandas>=2.0.0
+sqlalchemy>=2.0.0

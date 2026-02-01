@@ -1,0 +1,38 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+pip-log.txt
+
+# Data files (users should download from source)
+data/*.csv
+data/*.tsv
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.log
+
+# Generated visualization outputs
+temporal_distribution.png
+method_breakdown.png
+state_coverage.png
+material_distribution.png
+austarch_map.html
+
+# Jupyter
+.ipynb_checkpoints/

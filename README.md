@@ -7,9 +7,9 @@ Australian Archaeological Dating Database - A PostgreSQL/PostGIS database contai
 AustArch is a comprehensive database of archaeological dating results from Australia, based on the dataset compiled by Williams et al. (2014) and published through the Archaeology Data Service.
 
 **Dataset Statistics:**
-- ~5,200 age determinations (radiocarbon and luminescence dating)
-- ~5,200 samples (1:1 with age determinations)
-- ~1,070 archaeological sites with geographic coordinates
+- 5,183 age determinations (4,816 valid, 367 rejected)
+- 5,183 samples (1:1 with age determinations)
+- 1,071 archaeological sites (1,040 with geographic coordinates)
 - Coverage across Australian states and territories
 - Temporal span: 0 to ~270,000 years BP (Before Present)
 - Dating methods: Radiocarbon (C14, AMS, Conventional), OSL, TL, ESR, U-Th, AAR

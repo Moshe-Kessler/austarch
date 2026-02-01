@@ -395,13 +395,14 @@ BEGIN
     LEFT JOIN age_determination ad ON ad.import_batch_id = ib.id
     WHERE s.id IS NULL AND ad.id IS NULL;
 
-    -- Ages without any age value
+    -- Only flag non-rejected ages without values
     RETURN QUERY
-    SELECT 'Age determinations without age values'::TEXT,
+    SELECT 'Non-rejected ages without age values'::TEXT,
            COUNT(*)::BIGINT,
            'WARNING'::TEXT
     FROM age_determination
-    WHERE c14_age IS NULL AND lum_age_ka IS NULL AND age_bp IS NULL;
+    WHERE c14_age IS NULL AND lum_age_ka IS NULL AND age_bp IS NULL
+      AND NOT is_rejected;
 
     -- Inverted calibrated age ranges
     RETURN QUERY
@@ -429,6 +430,14 @@ BEGIN
            'INFO'::TEXT
     FROM site
     WHERE latitude IS NULL OR longitude IS NULL;
+
+    -- Info: total rejected ages
+    RETURN QUERY
+    SELECT 'Rejected ages (info only)'::TEXT,
+           COUNT(*)::BIGINT,
+           'INFO'::TEXT
+    FROM age_determination
+    WHERE is_rejected = TRUE;
 END;
 $$ LANGUAGE plpgsql;
 

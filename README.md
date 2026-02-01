@@ -7,11 +7,11 @@ Australian Archaeological Dating Database - A PostgreSQL/PostGIS database contai
 AustArch is a comprehensive database of archaeological dating results from Australia, based on the dataset compiled by Williams et al. (2014) and published through the Archaeology Data Service.
 
 **Dataset Statistics:**
-- ~5,000 radiocarbon determinations
-- ~480 non-radiocarbon ages (OSL, TL, and other methods)
-- ~1,750 archaeological sites
-- Coverage across 75 of 89 Australian bioregions
-- Temporal span: ~50,000 years of human activity
+- ~5,200 age determinations (radiocarbon and luminescence dating)
+- ~1,100 archaeological sites with geographic coordinates
+- Coverage across Australian states and territories
+- Temporal span: 0 to ~270,000 years BP (Before Present)
+- Dating methods: Radiocarbon (C14, AMS, Conventional), OSL, TL, ESR, U-Th, AAR
 
 **Source:**
 - Publication: https://intarch.ac.uk/journal/issue36/6/williams.html
@@ -24,8 +24,14 @@ AustArch is a comprehensive database of archaeological dating results from Austr
 | PostgreSQL | 17+ | Relational database with ACID compliance |
 | PostGIS | 3.x | Geospatial support with Australian datum (GDA94) |
 | pg_trgm | - | Fuzzy text search for site names |
-| Python | 3.10+ | Data ingestion pipeline |
+| Python | 3.10+ | Data ingestion and visualization |
 | psycopg2 | 2.9+ | PostgreSQL adapter for Python |
+| Jupyter | 1.0+ | Interactive notebook environment |
+| pandas | 2.0+ | Data analysis and manipulation |
+| matplotlib | 3.7+ | Publication-quality charts |
+| seaborn | 0.12+ | Statistical visualization |
+| folium | 0.14+ | Interactive maps |
+| SQLAlchemy | 2.0+ | Database toolkit and ORM |
 
 ## Database Schema
 
@@ -207,23 +213,66 @@ GROUP BY dm.name
 ORDER BY count DESC;
 ```
 
+## Interactive Visualizations
+
+The repository includes a comprehensive Jupyter notebook (`austarch_visualization.ipynb`) for exploring and visualizing the database.
+
+### Features
+
+The notebook provides:
+
+- **Temporal Distribution Charts**: Stacked bar charts showing age determinations across 1,000-year brackets, color-coded by dating method, with Holocene/Pleistocene boundary markers
+- **Dating Method Breakdown**: Horizontal bar charts and pie charts analyzing the distribution of radiocarbon (C14, AMS, Conventional), OSL, TL, and other dating techniques
+- **State/Territory Coverage**: Grouped bar charts comparing site counts and age determinations across Australian states
+- **Material Type Distribution**: Analysis of sample materials (charcoal, shell, quartz, etc.) used for dating
+- **Interactive Map**: Folium-based clustered marker map with color-coded site types and popup details including age ranges
+- **Summary Statistics**: Database-wide metrics including site counts, date ranges, and method distributions
+
+### Running the Notebook
+
+```bash
+# Install visualization dependencies
+pip install -r requirements.txt
+
+# Set database connection (optional - defaults to localhost)
+export AUSTARCH_DB_USER=your_username
+
+# Launch Jupyter
+jupyter notebook austarch_visualization.ipynb
+```
+
+The notebook connects to your local PostgreSQL database and generates publication-quality charts saved as PNG files, plus an interactive HTML map (`austarch_map.html`).
+
 ## Project Structure
 
 ```
 austarch/
-├── README.md              # This file
-├── schema.sql             # Database DDL (tables, indexes, views, triggers)
-├── reference_data.sql     # Dating methods, materials, bioregions
-├── validate.sql           # Data quality validation functions
-├── queries.sql            # Example analytical queries
-├── ingest.py              # Python data ingestion pipeline
-├── requirements.txt       # Python dependencies
-├── setup.sh               # Quick setup script
-├── data/                  # Downloaded CSV data files
+├── README.md                        # This file
+├── LICENSE                          # MIT License
+├── schema.sql                       # Database DDL (tables, indexes, views, triggers)
+├── reference_data.sql               # Dating methods, materials, bioregions
+├── validate.sql                     # Data quality validation functions
+├── queries.sql                      # Example analytical queries
+├── ingest.py                        # Python data ingestion pipeline
+├── requirements.txt                 # Python dependencies (database + visualization)
+├── setup.sh                         # Quick setup script
+├── austarch_visualization.ipynb     # Jupyter notebook with interactive visualizations
+├── .env.example                     # Example environment variable configuration
+├── data/                            # Downloaded CSV data files
 │   ├── Austarch_1-3_and_IDASQ_28Nov13-1.csv
 │   └── Austarch_Citation.csv
-└── venv/                  # Python virtual environment
+└── venv/                            # Python virtual environment
 ```
+
+### Generated Output Files
+
+When you run the visualization notebook, it creates:
+
+- `temporal_distribution.png` - Temporal distribution chart
+- `method_breakdown.png` - Dating method analysis
+- `state_coverage.png` - Geographic coverage by state
+- `material_distribution.png` - Sample material types
+- `austarch_map.html` - Interactive site map
 
 ## Key Views
 

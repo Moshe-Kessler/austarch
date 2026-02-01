@@ -375,19 +375,30 @@ def normalize_site_name(name: str) -> str:
 
 
 def find_existing_site(cursor, name: str, lat: float, lon: float) -> Optional[int]:
-    """Find existing site by name match or proximity."""
+    """Find existing site by name match or proximity.
+
+    If a site is found by name but has no coordinates, and the current row
+    has coordinates, update the site with those coordinates.
+    """
     normalized = normalize_site_name(name)
 
     # First try exact name match
     cursor.execute("""
-        SELECT id FROM site
+        SELECT id, latitude, longitude FROM site
         WHERE LOWER(REPLACE(site_name, ' ', '')) = LOWER(REPLACE(%s, ' ', ''))
         LIMIT 1
     """, (name,))
 
     result = cursor.fetchone()
     if result:
-        return result[0]
+        site_id, existing_lat, existing_lon = result
+        # Update coordinates if site has none but current row does
+        if (existing_lat is None or existing_lon is None) and lat is not None and lon is not None:
+            cursor.execute("""
+                UPDATE site SET latitude = %s, longitude = %s
+                WHERE id = %s
+            """, (lat, lon, site_id))
+        return site_id
 
     # Try spatial proximity (within ~100m)
     if lat is not None and lon is not None:

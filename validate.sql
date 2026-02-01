@@ -357,5 +357,83 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- =============================================================================
+-- DATA INTEGRITY CHECK (orphan detection)
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION check_data_integrity()
+RETURNS TABLE(
+    check_name TEXT,
+    issue_count BIGINT,
+    severity TEXT
+) AS $$
+BEGIN
+    -- Orphaned sites (no samples)
+    RETURN QUERY
+    SELECT 'Orphaned sites (no samples)'::TEXT,
+           COUNT(*)::BIGINT,
+           'ERROR'::TEXT
+    FROM site s
+    LEFT JOIN sample sa ON sa.site_id = s.id
+    WHERE sa.id IS NULL;
+
+    -- Orphaned samples (no age_determination)
+    RETURN QUERY
+    SELECT 'Orphaned samples (no age_determination)'::TEXT,
+           COUNT(*)::BIGINT,
+           'ERROR'::TEXT
+    FROM sample s
+    LEFT JOIN age_determination ad ON ad.sample_id = s.id
+    WHERE ad.id IS NULL;
+
+    -- Empty import batches
+    RETURN QUERY
+    SELECT 'Empty import batches'::TEXT,
+           COUNT(*)::BIGINT,
+           'WARNING'::TEXT
+    FROM import_batch ib
+    LEFT JOIN site s ON s.import_batch_id = ib.id
+    LEFT JOIN age_determination ad ON ad.import_batch_id = ib.id
+    WHERE s.id IS NULL AND ad.id IS NULL;
+
+    -- Ages without any age value
+    RETURN QUERY
+    SELECT 'Age determinations without age values'::TEXT,
+           COUNT(*)::BIGINT,
+           'WARNING'::TEXT
+    FROM age_determination
+    WHERE c14_age IS NULL AND lum_age_ka IS NULL AND age_bp IS NULL;
+
+    -- Inverted calibrated age ranges
+    RETURN QUERY
+    SELECT 'Inverted calibrated age ranges (from < to)'::TEXT,
+           COUNT(*)::BIGINT,
+           'WARNING'::TEXT
+    FROM age_determination
+    WHERE cal_age_bp_from IS NOT NULL
+      AND cal_age_bp_to IS NOT NULL
+      AND cal_age_bp_from < cal_age_bp_to;
+
+    -- Unreasonable C14 ages (> 60,000 years)
+    RETURN QUERY
+    SELECT 'Unreasonable C14 ages (> 60,000 BP)'::TEXT,
+           COUNT(*)::BIGINT,
+           'WARNING'::TEXT
+    FROM age_determination ad
+    JOIN dating_method dm ON ad.method_id = dm.id
+    WHERE dm.code IN ('C14', 'AMS', 'CONV') AND ad.c14_age > 60000;
+
+    -- Sites without coordinates
+    RETURN QUERY
+    SELECT 'Sites without coordinates'::TEXT,
+           COUNT(*)::BIGINT,
+           'INFO'::TEXT
+    FROM site
+    WHERE latitude IS NULL OR longitude IS NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION check_data_integrity() IS 'Returns data integrity issues including orphaned records and quality problems';
+
+-- =============================================================================
 -- END OF VALIDATION
 -- =============================================================================

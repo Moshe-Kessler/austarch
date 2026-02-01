@@ -8,7 +8,8 @@ AustArch is a comprehensive database of archaeological dating results from Austr
 
 **Dataset Statistics:**
 - ~5,200 age determinations (radiocarbon and luminescence dating)
-- ~1,100 archaeological sites with geographic coordinates
+- ~5,200 samples (1:1 with age determinations)
+- ~1,070 archaeological sites with geographic coordinates
 - Coverage across Australian states and territories
 - Temporal span: 0 to ~270,000 years BP (Before Present)
 - Dating methods: Radiocarbon (C14, AMS, Conventional), OSL, TL, ESR, U-Th, AAR

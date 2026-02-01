@@ -507,6 +507,24 @@ def process_radiocarbon_row(
             stats.errors.append(f"Invalid coordinates: {lat}, {lon}")
             lat, lon = None, None
 
+    # Age determination - validate lab code FIRST before creating site/sample
+    # Column names: LAB_CODE, AGE, ERROR, C13_AGE, C13_ERROR, METHOD, TECHNIQUE
+    lab_code = parse_lab_code(row.get('LAB_CODE'))
+
+    if not lab_code:
+        stats.ages_skipped += 1
+        return
+
+    # Check for duplicate lab code before creating any records
+    if config.skip_existing:
+        cursor.execute(
+            "SELECT id FROM age_determination WHERE lab_code = %s",
+            (lab_code,)
+        )
+        if cursor.fetchone():
+            stats.ages_skipped += 1
+            return
+
     # Site data
     # Column names: SITE, SITE_TYPE, IBRA_REGION
     site_name = (row.get('SITE') or 'Unknown Site').strip()
@@ -551,24 +569,6 @@ def process_radiocarbon_row(
     """, (site_id, material_id, material_desc, depth_top, context))
     sample_id = cursor.fetchone()[0]
     stats.samples_created += 1
-
-    # Age determination
-    # Column names: LAB_CODE, AGE, ERROR, C13_AGE, C13_ERROR, METHOD, TECHNIQUE
-    lab_code = parse_lab_code(row.get('LAB_CODE'))
-
-    if not lab_code:
-        stats.ages_skipped += 1
-        return
-
-    # Check for duplicate lab code
-    if config.skip_existing:
-        cursor.execute(
-            "SELECT id FROM age_determination WHERE lab_code = %s",
-            (lab_code,)
-        )
-        if cursor.fetchone():
-            stats.ages_skipped += 1
-            return
 
     # Parse ages - AGE and ERROR are the main columns
     c14_age = parse_int(row.get('AGE'))
